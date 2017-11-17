@@ -1,0 +1,4 @@
+How to using R to download the hyperlinks in the google sheets?
+
+I used the package "googlesheets", it only returns me a string without
+the hyperlinks.
