@@ -1,0 +1,5 @@
+when the percent shows as
+11.1
+4%
+
+the program will igonore 4 and return 11.1
