@@ -1,0 +1,13 @@
+N:
+# In terminal
+```{bash}
+R
+```
+# We can running r files in R by using function source()
+```{R}
+source("filename.R")
+```
+
+
+Q:
+# How to install and load packages in the file DESCRIPTIONS at one time without typing names out?
