@@ -1,0 +1,24 @@
+  files = files[!(files %in% c(
+    "xml/Acton-AguaDulceUnified_LCAP_2015.2018.xml"  # lines around page
+    , "xml/AdelantoElementary_LCAP_2015.2018.xml"    # hz for dashed vt
+    , "xml/Alameda_CastroValleyUnified_LCAP_2015.2018.xml" # no lines
+    , "xml/Alameda_DublinUnified_LCAP_2015.2018.xml" # rows over 3 pages
+    , "xml/Alameda_EmeryUnified_LCAP_2015.2016.xml"  # rows over 3 pages
+    , "xml/Alameda_FremontUnified_LCAP_2015.2016.xml" # no lines
+    # lines around page
+    , "xml/Alameda_LivermoreValleyJointUnified_LCAP_2015.2016.xml"
+    , "xml/Alameda_NewarkUnified_LCAP_2015.2016.xml" # no lines
+    , "xml/Alameda_NewHavenUnified_LCAP_2015.2018.xml" # no lines
+    , "xml/Alameda_OaklandUnified_LCAP_2015.2018.xml" # hz for dashed vt
+    # memory:
+    , "xml/Amador_AmadorCountyUnified_LCAP_2015.2016.xml"
+    , "xml/SpreckelsUnionElementary_LCAP_2015.2016.xml"
+    , "xml/WeaverUnion_LCAP_2015.2016.xml"
+    , "xml/Alameda_PleasantonUnified_LCAP_2015.2016_AppendixD.xml"  
+    , "xml/BelleviewElementary_LCAP_2015.2016.xml"
+    , "xml/BennettValleyUnionElementary_LCAP_2015.2016.xml"
+    , "xml/BigOakFlat-GrovelandUnified_LCAP_2015.2016.xml"
+    , "xml/BigPineUnified_LCAP_2015.2016.xml"
+	))]
+
+
