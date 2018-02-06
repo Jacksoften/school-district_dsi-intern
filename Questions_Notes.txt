@@ -11,3 +11,8 @@ source("filename.R")
 
 Q:
 # How to install and load packages in the file DESCRIPTIONS at one time without typing names out?
+
+
+1/23
+Alameda_PiedmontCityUnified_LCAP_2015.2016_AppendixD.xml
+No Section 2. It is an appendix. Probably need to ignore it.
