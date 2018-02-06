@@ -76,6 +76,26 @@ extended element:
 xpath expression
 source: https://www.w3schools.com/xml/xpath_syntax.asp
 
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?xml version="1.0" encoding="UTF-8"?>
+
+<bookstore>
+
+<book>
+  <title lang="en">Harry Potter</title>
+  <price>29.99</price>
+</book>
+
+<book>
+  <title lang="en">Learning XML</title>
+  <price>39.95</price>
+</book>
+
+</bookstore>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 nodename          Selects all nodes with the name "nodename"
 /                 Selects from the root node
 //                Selects node in the document fro the current node that match the selection no matter where they are.
@@ -90,3 +110,32 @@ bookstore/book    Selects all book elements that are children of bookstore.
 //book            Selects all book elements no matter where they are in the document
 bookstore//book   Selects all book elements that are descendant of the bookstore element, no matter where they are under the bookstore element.
 //@lang           Selects all attributes that are names lang
+
+
+
+Predicates:
+Predicates are used to find a specific node or a node that contains a specific value. 
+Predicates are always embedded in square brackets.
+
+some examples
+/bookstore/book[1]		Selects the first book element that is the child of the bookstore element. 
+/bookstore/book[last()] 	Selects the last book element that is the child of the bookstore element
+/bookstore/book[last()-1]	Selects the last but one book element that is the child of the bookstore element
+/bookstore/book[position()<3]	Selects the first two book elements that are children of the bookstore element
+//title[@lang]			Selects all the title elements that have an attribute named lang
+//title[@lang='en']		Selects all the title elements that have a 'lang' attribute with a value of "en"
+/bookstore/book[price>35.00] Selects all the book elements of the bookstore element that have a price element with a value greater than 35.00
+/bookstore/book[price>35.00]/title Selects all the title elements of the book elements of the bookstore element that have a price element with a value greater than 35.00
+
+Selecting Unknown Nodes.
+*		Matches any element node
+@*		Matches any attribute node
+node()		Matches any node of any kind
+
+some examples:
+/bookstore/* 	Selects all the child element nodes of the bookstore element
+//* 		Selects all elements in the document
+//title[@*]	Selects all title elements which have at least one attribute of any kind.
+
+Selecting Several paths   |
+
