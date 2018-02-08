@@ -1,0 +1,8 @@
+Today:
+two sec2_locate using the key worda to find the position of the section
+
+
+
+Next Target:
+1. keep checking the functions
+2. may transfer xml2 to XML

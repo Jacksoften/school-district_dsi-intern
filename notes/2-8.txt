@@ -1,0 +1,10 @@
+Tried to understand how Nick deal with the lines and cells and rects.
+
+Tried to modify main.r function to only test on one file, but
+BearValleyUnified failed.
+
+It does extract the text, but failed at sec2_parse()
+
+## TODO
+1. need to find out the reason.
+2. modify the function to extract more infomations.
