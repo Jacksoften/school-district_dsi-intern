@@ -1,0 +1,21 @@
+figured out how to get the data of lines and rects
+then transfer rects to lines
+
+
+but Nick's code fails for lines_to_cells
+for pdf BearValley...2015_2016
+page15
+
+
+in geometry.R, line16, returned line = NULL
+status: have not figured out the reason
+
+possile cause:
+lines = lines[lines[4,] - lines[2, ], tol_y]
+it might be lines[lines[,4] - lines[,2], tol_y]
+
+
+
+##TODO
+try to plot out the structure of the boxes then extract texts
+from boxes
