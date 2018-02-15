@@ -19,3 +19,7 @@ it might be lines[lines[,4] - lines[,2], tol_y]
 ##TODO
 try to plot out the structure of the boxes then extract texts
 from boxes
+
+
+Duncan has added new function getBBox{,2} to ReadPDF, we may check it
+ to see if it is applicable in our function
