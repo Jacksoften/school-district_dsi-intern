@@ -1,0 +1,7 @@
+fixed a bug in geometry.R
+Now, I could get desired information.
+test code is in myTest.r
+
+#TODO
+Try to locate cells which contain target texts.
+

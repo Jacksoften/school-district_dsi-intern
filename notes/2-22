@@ -1,0 +1,37 @@
+lower.tri {base}
+Returns a matrix of logicals the same size of a given matrix with entries TRUE in the lower or upper triangle.
+
+
+NA_real_ {base}
+reserved word in r for missing value of atomic vector type
+
+
+##TODO
+1. Know box, how to get text
+2. Know text, how to locate box
+
+# under the pdf, BearValleyUnified 2015
+General rule, colored box contains titles then getting text vertically until meet next colored box
+
+
+For example.
+# Actions/Services
+# xml data
+<text top="247" left="170" width="138" height="17" font="0" rotation="0.000000">Actions/Services </text>
+
+<rect bbox="27.180,232.590,190.110,108.390" lineWidth="1.000" fill.color="55771,55771,55771"  stroke.color="0,0,0" />
+                x0,     y0,     x1,     y1
+where these are two opposite points of the rectangle.
+So this is 
+  point 0 = (27, 232)
+  point 1 =  (190, 108)
+  then it could be represented as four lines 
+  2__________1
+  |          |
+  |          |
+  0----------3
+  (may not be exact, but correct concept)
+  point 0 (27, 232)
+  point 1 (190, 108)
+  point 2 (27, 108)
+  point 3 (190, 232)
