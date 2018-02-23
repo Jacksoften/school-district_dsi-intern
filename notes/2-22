@@ -35,3 +35,5 @@ So this is
   point 1 (190, 108)
   point 2 (27, 108)
   point 3 (190, 232)
+
+In PDF, point(0,0) is top left corner.
