@@ -44,10 +44,14 @@ if (length(lines) == 0 && length(rects) == 0) {
 
 plot(c(0,1200), c(-850,-50) , type = 'n')
 for(i in 1:nrow(rects)){
-  rect(rects[i,1],-rects[i,2],rects[i,3],-rects[i,4])
+  if(sum(rect_color[i,]) != 0){
+    rect(rects[i,1],-rects[i,2],rects[i,3],-rects[i,4], col = 'gray')
+  }else{
+    rect(rects[i,1],-rects[i,2],rects[i,3],-rects[i,4]) 
+  }
 }
 for(i in 1:nrow(lines)){
-  rect(lines[i,1],-lines[i,2],lines[i,3],-lines[i,4])
+  if(dim(lines)[1] != 0) rect(lines[i,1],-lines[i,2],lines[i,3],-lines[i,4])
 }
 
 
