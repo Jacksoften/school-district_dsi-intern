@@ -25,10 +25,31 @@ page_no = as.integer(xml_attr(page, 'number'))
 
 lines = pdf_bbox(xml_find_all(page, './line'))
 rects = pdf_bbox(xml_find_all(page, './rect'))
+
+find_rect_color = function(nodes) {
+  color = sapply(nodes, function(x)
+    {
+    xml_attr(x, "fill.color")
+  })
+  colors = strsplit(color, ',')
+  result = sapply(colors, as.integer)
+  return(t(result))
+}
+rect_color = find_rect_color(xml_find_all(page, './rect'))
+
 if (length(lines) == 0 && length(rects) == 0) {
 	print(sprintf(" Page %s does not have line or rect tags. \n", 
 		      page_no))
 }
+
+plot(c(0,1200), c(-850,-50) , type = 'n')
+for(i in 1:nrow(rects)){
+  rect(rects[i,1],-rects[i,2],rects[i,3],-rects[i,4])
+}
+for(i in 1:nrow(lines)){
+  rect(lines[i,1],-lines[i,2],lines[i,3],-lines[i,4])
+}
+
 
 lines = rbind(lines, rects_to_lines(rects))
 head(lines)
