@@ -56,9 +56,49 @@ for(i in 1:nrow(lines)){
 
 
 lines = rbind(lines, rects_to_lines(rects))
+plot(c(0,1200), c(-850,-50) , type = 'n')
+for(i in 1:nrow(lines)){
+  if(dim(lines)[1] != 0) rect(lines[i,1],-lines[i,2],lines[i,3],-lines[i,4])
+}
 head(lines)
+
 cells = lines_to_cells(lines, tol_x, tol_y, plot = TRUE)
+head(cells)
+plot(c(0,1200), c(-850,-50) , type = 'n')
+for(i in 1:nrow(cells)){
+  if(dim(cells)[1] != 0) rect(cells[i,1],-cells[i,2],cells[i,3],-cells[i,4])
+}
+
 cells = cells_to_rows(cells, tol_x)
+# cells_to_rows merges two too near rows
+# TODO
+# cells_to_cols: merging two too near columns
+
+head(cells)
+plot(c(0,1200), c(-850,-50) , type = 'n')
+for(i in 1:nrow(cells)){
+  if(dim(cells)[1] != 0) rect(cells[i,1],-cells[i,2],cells[i,3],-cells[i,4])
+}
+
+getCols = function(cells) {
+  # Merge coloumn from different cells to longer lines.
+  urows = unique(c(cells[,1])) #, cells[,2]))
+  cols = list()
+  for(i in seq_along(urows)){
+    cols[[i]] = c(urows[i],
+                  min(cells[cells[,1] == urows[1],2]), 
+                  urows[i], 
+                  max(cells[cells[,1] == urows[1],4]))
+  }
+  do.call(rbind, cols)
+}
+testcols = getCols(cells)
+plot(c(0,1200), c(-850,-50) , type = 'n')
+for(i in 1:nrow(testcols)){
+  if(dim(testcols)[1] != 0) rect(testcols[i,1],-testcols[i,2],testcols[i,3],-testcols[i,4])
+}
+
+
 # we care more for columns.
 texts = pdf_text(page)
 texts$page   = page_no
