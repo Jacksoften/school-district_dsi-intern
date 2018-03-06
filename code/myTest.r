@@ -71,8 +71,26 @@ for(i in 1:nrow(cells)){
 
 cells = cells_to_rows(cells, tol_x)
 # cells_to_rows merges two too near rows
+
 # TODO
 # cells_to_cols: merging two too near columns
+cells_to_cols = function(cells, tol = 5) {
+  # modified from cells_to_rows
+  # NOTE: the row detection below might fail if there are nested cells.
+  cells = cells[!is_nested(cells), ]
+  
+  cells = cells[order(cells[, 1], cells[, 2], decreasing = FALSE), ]
+  
+  # Cols are determined by the heights of the topmost cells.
+  is_topmost = cells[, 2] <= min(cells[, 2]) + tol
+  col_id = findInterval(cells[, 1], cells[is_topmost, 1])
+  
+  cells = cbind(cells, col_id)
+  
+  return (cells)
+}
+
+cells = cells_to_cols(cells, tol_y)
 
 head(cells)
 plot(c(0,1200), c(-850,-50) , type = 'n')
@@ -102,6 +120,20 @@ for(i in 1:nrow(testcols)){
 # we care more for columns.
 texts = pdf_text(page)
 texts$page   = page_no
+
+### which_rect ###
+which_rects2 = function(x, rects) {
+  # how to locate cell not only according to row_id, but also col_id
+  rowCheck = apply(x, 1, function(x_) {
+    match(TRUE, pt_in_rects2(x_, rects, open_rb = TRUE))
+  })
+  colCheck = apply(x, 2, function(x_) {
+    match(TRUE, pt_in_rects2(x_, rects, open_rb = TRUE))
+  })
+  c(rowCheck, colCheck)
+}
+###------------###
+
 texts$cell   = which_rect(texts[1:2], cells)
 texts$row    = cells[texts$cell, 5]
 texts$c_left = cells[texts$cell, 1]
