@@ -10,6 +10,16 @@ source("../R/pdf_xml.R")
 source("../R/plot_geometry.R")
 source("../R/utils.R")
 
+paper_plot = function(x) {
+  if(!is.matrix(x)) stop("Input is not a matrix")
+  
+  plot(c(0,1200), c(-850,-50) , type = 'n')
+  for(i in 1:nrow(x)){
+    Sys.sleep(0.1)
+    if(dim(x)[1] != 0) rect(x[i,1],-x[i,2],x[i,3],-x[i,4])
+  }
+}
+
 # assume default working directory is at /xml
 file = "BearValleyUnified_LCAP_2015.2016.xml"
 xml = read_xml(file)
@@ -42,32 +52,16 @@ if (length(lines) == 0 && length(rects) == 0) {
 		      page_no))
 }
 
-plot(c(0,1200), c(-850,-50) , type = 'n')
-for(i in 1:nrow(rects)){
-  if(sum(rect_color[i,]) != 0){
-    rect(rects[i,1],-rects[i,2],rects[i,3],-rects[i,4], col = 'gray')
-  }else{
-    rect(rects[i,1],-rects[i,2],rects[i,3],-rects[i,4]) 
-  }
-}
-for(i in 1:nrow(lines)){
-  if(dim(lines)[1] != 0) rect(lines[i,1],-lines[i,2],lines[i,3],-lines[i,4])
-}
+paper_plot(rects)
 
 
 lines = rbind(lines, rects_to_lines(rects))
-plot(c(0,1200), c(-850,-50) , type = 'n')
-for(i in 1:nrow(lines)){
-  if(dim(lines)[1] != 0) rect(lines[i,1],-lines[i,2],lines[i,3],-lines[i,4])
-}
+paper_plot(lines)
 head(lines)
 
-cells = lines_to_cells(lines, tol_x, tol_y, plot = TRUE)
+cells = lines_to_cells(lines, tol_x, tol_y)
 head(cells)
-plot(c(0,1200), c(-850,-50) , type = 'n')
-for(i in 1:nrow(cells)){
-  if(dim(cells)[1] != 0) rect(cells[i,1],-cells[i,2],cells[i,3],-cells[i,4])
-}
+paper_plot(cells)
 
 cells = cells_to_rows(cells, tol_x)
 # cells_to_rows merges two too near rows
@@ -91,30 +85,50 @@ cells_to_cols = function(cells, tol = 5) {
 }
 
 cells = cells_to_cols(cells, tol_y)
-
 head(cells)
-plot(c(0,1200), c(-850,-50) , type = 'n')
-for(i in 1:nrow(cells)){
-  if(dim(cells)[1] != 0) rect(cells[i,1],-cells[i,2],cells[i,3],-cells[i,4])
-}
+paper_plot(cells)
 
-getCols = function(cells) {
-  # Merge coloumn from different cells to longer lines.
-  urows = unique(c(cells[,1])) #, cells[,2]))
-  cols = list()
-  for(i in seq_along(urows)){
-    cols[[i]] = c(urows[i],
-                  min(cells[cells[,1] == urows[1],2]), 
-                  urows[i], 
-                  max(cells[cells[,1] == urows[1],4]))
-  }
-  do.call(rbind, cols)
-}
-testcols = getCols(cells)
-plot(c(0,1200), c(-850,-50) , type = 'n')
-for(i in 1:nrow(testcols)){
-  if(dim(testcols)[1] != 0) rect(testcols[i,1],-testcols[i,2],testcols[i,3],-testcols[i,4])
-}
+newlines = rects_to_lines(cells)
+paper_plot(newlines)
+
+newrows = newlines[which(newlines[,2] == newlines[,4]),]
+newcols = newlines[which(newlines[,1] == newlines[,3]),]
+# plot rows
+paper_plot(newrows)
+# plot cols
+paper_plot(newcols)
+
+unicols = unique(newcols[,1]) # the location of column is controlled by row coordinate (x, y1), (x, y2)
+mergecols = t(vapply(unicols, function(x) {
+  chosen = newcols[which(newcols[,1] == x),,drop = FALSE]
+  matrix(c(x,min(chosen[,2]), x, max(chosen[,4])), nrow = 1)
+}, numeric(4)))
+paper_plot(mergecols)
+
+unirows = unique(newrows[,2]) # the location of column is controlled by row coordinate (x, y1), (x, y2)
+mergerows = t(vapply(unirows, function(x) {
+  chosen = newrows[which(newrows[,2] == x),,drop = FALSE]
+  matrix(c(min(chosen[,1]), x, max(chosen[,3]), x), nrow = 1)
+}, numeric(4)))
+paper_plot(mergerows) # TODO delete the short row
+
+# getCols = function(cells) {
+#   # Merge coloumn from different cells to longer lines.
+#   urows = unique(c(cells[,1])) #, cells[,2]))
+#   cols = list()
+#   for(i in seq_along(urows)){
+#     cols[[i]] = c(urows[i],
+#                   min(cells[cells[,1] == urows[1],2]), 
+#                   urows[i], 
+#                   max(cells[cells[,1] == urows[1],4]))
+#   }
+#   do.call(rbind, cols)
+# }
+# testcols = getCols(cells)
+# plot(c(0,1200), c(-850,-50) , type = 'n')
+# for(i in 1:nrow(testcols)){
+#   if(dim(testcols)[1] != 0) rect(testcols[i,1],-testcols[i,2],testcols[i,3],-testcols[i,4])
+# }
 
 
 # we care more for columns.
