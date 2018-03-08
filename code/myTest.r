@@ -10,10 +10,10 @@ source("../R/pdf_xml.R")
 source("../R/plot_geometry.R")
 source("../R/utils.R")
 
-paper_plot = function(x) {
+paper_plot = function(x, resetplot = TRUE) {
   if(!is.matrix(x)) stop("Input is not a matrix")
   
-  plot(c(0,1200), c(-850,-50) , type = 'n')
+  if(resetplot) plot(c(0,1200), c(-850,-50) , type = 'n')
   for(i in 1:nrow(x)){
     Sys.sleep(0.1)
     if(dim(x)[1] != 0) rect(x[i,1],-x[i,2],x[i,3],-x[i,4])
@@ -110,7 +110,10 @@ mergerows = t(vapply(unirows, function(x) {
   chosen = newrows[which(newrows[,2] == x),,drop = FALSE]
   matrix(c(min(chosen[,1]), x, max(chosen[,3]), x), nrow = 1)
 }, numeric(4)))
+keeprows = !abs(mergerows[,1] - min(mergerows[,1])) > tol_x
+mergerows = mergerows[keeprows,]
 paper_plot(mergerows) # TODO delete the short row
+paper_plot(mergecols, resetplot = FALSE)
 
 # getCols = function(cells) {
 #   # Merge coloumn from different cells to longer lines.
