@@ -12,10 +12,11 @@ source("../R/utils.R")
 
 paper_plot = function(x, resetplot = TRUE) {
   if(!is.matrix(x)) stop("Input is not a matrix")
-  
+  if(dim(x)[1] == 0) stop("Input is empty")
   if(resetplot) plot(c(0,1200), c(-850,-50) , type = 'n')
+  sleeptime = 1/nrow(x)
   for(i in 1:nrow(x)){
-    Sys.sleep(0.1)
+    Sys.sleep(sleeptime)
     if(dim(x)[1] != 0) rect(x[i,1],-x[i,2],x[i,3],-x[i,4])
   }
 }
@@ -35,6 +36,9 @@ page_no = as.integer(xml_attr(page, 'number'))
 
 lines = pdf_bbox(xml_find_all(page, './line'))
 rects = pdf_bbox(xml_find_all(page, './rect'))
+
+paper_plot(rects)
+paper_plot(lines)
 
 find_rect_color = function(nodes) {
   color = sapply(nodes, function(x)
@@ -59,11 +63,13 @@ lines = rbind(lines, rects_to_lines(rects))
 paper_plot(lines)
 head(lines)
 
+
 cells = lines_to_cells(lines, tol_x, tol_y)
-head(cells)
 paper_plot(cells)
 
 cells = cells_to_rows(cells, tol_x)
+paper_plot(cells)
+
 # cells_to_rows merges two too near rows
 
 # TODO
@@ -114,6 +120,13 @@ keeprows = !abs(mergerows[,1] - min(mergerows[,1])) > tol_x
 mergerows = mergerows[keeprows,]
 paper_plot(mergerows) # TODO delete the short row
 paper_plot(mergecols, resetplot = FALSE)
+
+coldiff = mergecols[-nrow(mergecols),] - mergecols[-1,]
+mergeCol_id = which(coldiff[,2]<tol_y & coldiff[,4]<tol_y & abs(coldiff[,1]) < tol_y) # merge two close ones
+mergecols = mergecols[-mergeCol_id, ]
+paper_plot(mergecols)
+mergecols
+
 
 # getCols = function(cells) {
 #   # Merge coloumn from different cells to longer lines.
