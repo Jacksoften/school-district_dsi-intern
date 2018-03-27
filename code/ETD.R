@@ -49,3 +49,8 @@ allPages = getNodeSet(rootNode, pageRange)
 # choose one page to deal with
 texts = getNodeSet(allPages[[1]], "text")
 rects = getNodeSet(allPages[[1]], "rect")
+
+# useful functions:
+# xmlApply
+# xmlAttrs
+# xmlChildren
