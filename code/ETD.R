@@ -53,10 +53,12 @@ rects = getNodeSet(allPages[[1]], "rect")
 attrs = sapply(texts, xmlAttrs)
 charbbox = apply(attrs, 2, function(x){
 			 vc = as.numeric(x)
-			 result = c(vc[1], vc[2], vc[1] + vc[3], vc[2] + vc[4])
+			 # result = c(vc[1], vc[2], vc[1] + vc[3], vc[2] + vc[4])
+			 result = c(vc[2], vc[1], vc[2] + vc[3], vc[1] + vc[4])
 			 names(result) = c('x0', 'y0', 'x1', 'y1')
 			 return(result)
   })
+cat("charbbox range: ", apply(charbbox, 1, range), "\n")
 values = sapply(texts, xmlValue)
 bboxes = sapply(rects, function(node) {
 			bbox = xmlAttrs(node)[1]
@@ -65,8 +67,20 @@ bboxes = sapply(rects, function(node) {
 			return(bbox)
 
   })
+cat("bboxes range: ", apply(bboxes, 1, range), "\n")
 
-# useful functions:
-# xmlApply
-# xmlAttrs
-# xmlChildren
+pdf_plot = function(x, resetplot = TRUE, color = 'black') {
+  # plot rects and characters in the format of pdfs
+  # FIXME: charbbox does not work very well
+  if(!is.matrix(x)) stop("Input is not a matrix")
+  if(dim(x)[1] == 0) stop("Input is empty")
+  if(resetplot) plot(c(0,1200), c(-850,-50) , type = 'n')
+  sleeptime = 1/nrow(x)
+  for(i in 1:nrow(x)){
+    Sys.sleep(sleeptime)
+    if(dim(x)[1] != 0) rect(x[i,1],-x[i,2],x[i,3],-x[i,4],border=color)
+  }
+}
+
+pdf_plot(t(bboxes))
+pdf_plot(t(charbbox), resetplot=FALSE, color='red')

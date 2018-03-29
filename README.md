@@ -25,5 +25,6 @@ git clone https://github.com/dsidavis/ReadPDF.git \
 rects are showing as [x0, y0, x1, y1]
 
 # TODO
-1. ploting the extracted coordinates
-2. extracting text by subsection names
+1. ploting the extracted coordinates (well done)
+2. extracting text by subsection names (may be able to do this by locations of characters.
+3. One characteristic that our xmls do not share the ExtractTabularData python file is that our pdf parser gets words by sentence instead of characters. We my take an advantage of it that we do not need to group them by ourselves.
