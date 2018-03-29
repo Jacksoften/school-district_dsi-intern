@@ -21,5 +21,9 @@ git clone https://github.com/dsidavis/ReadPDF.git \
 	&& R CMD INSTALL .
 ```
 
+# XML
+rects are showing as [x0, y0, x1, y1]
+
 # TODO
-1. extracting text by subsection names
+1. ploting the extracted coordinates
+2. extracting text by subsection names

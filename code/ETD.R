@@ -47,8 +47,24 @@ pageRange = sprintf("//page[%d <= @number and @number <= %d]", firstPage, lastPa
 allPages = getNodeSet(rootNode, pageRange)
 
 # choose one page to deal with
+library(stringr)
 texts = getNodeSet(allPages[[1]], "text")
 rects = getNodeSet(allPages[[1]], "rect")
+attrs = sapply(texts, xmlAttrs)
+charbbox = apply(attrs, 2, function(x){
+			 vc = as.numeric(x)
+			 result = c(vc[1], vc[2], vc[1] + vc[3], vc[2] + vc[4])
+			 names(result) = c('x0', 'y0', 'x1', 'y1')
+			 return(result)
+  })
+values = sapply(texts, xmlValue)
+bboxes = sapply(rects, function(node) {
+			bbox = xmlAttrs(node)[1]
+			bbox = as.numeric(strsplit(bbox, ',')[[1]])
+			names(bbox) = c('x0', 'y0', 'x1', 'y1')
+			return(bbox)
+
+  })
 
 # useful functions:
 # xmlApply
