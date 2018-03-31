@@ -50,6 +50,8 @@ allPages = getNodeSet(rootNode, pageRange)
 library(stringr)
 texts = getNodeSet(allPages[[1]], "text")
 rects = getNodeSet(allPages[[1]], "rect")
+is_unfilled = sapply(rects, xmlAttrs)[3,] == '0,0,0'
+rects0 = rects[is_unfilled]
 attrs = sapply(texts, xmlAttrs)
 charbbox = apply(attrs, 2, function(x){
 			 vc = as.numeric(x)
@@ -62,17 +64,18 @@ charbbox = apply(attrs, 2, function(x){
 			 names(result) = c('x0', 'y0', 'x1', 'y1')
 			 return(result)
   })
-charbbox = charbbox[, charbbox[1,] != 0]
+charbbox = t(charbbox[, charbbox[1,] != 0])
 
 # cat("charbbox range: ", apply(charbbox, 1, range), "\n")
 values = sapply(texts, xmlValue)
-bboxes = sapply(rects, function(node) {
+bbox0 = sapply(rects0, function(node) {
 			bbox = xmlAttrs(node)[1]
 			bbox = as.numeric(strsplit(bbox, ',')[[1]])
 			names(bbox) = c('x0', 'y0', 'x1', 'y1')
 			return(bbox)
 
   })
+bbox0 = t(bbox0)
 # cat("bboxes range: ", apply(bboxes, 1, range), "\n")
 
 pdf_plot = function(x, resetplot = TRUE, color = 'black') {
@@ -87,9 +90,52 @@ pdf_plot = function(x, resetplot = TRUE, color = 'black') {
   }
 }
 
-pdf_plot(t(bboxes))
-pdf_plot(t(charbbox), resetplot=FALSE, color='red')
+# pdf_plot(t(bbox0))
+# pdf_plot(t(charbbox), resetplot=FALSE, color='red')
+
+rects_to_lines = function(rects) {
+  n = nrow(rects)
+  if(n == 4) {
+    rects = t(rects)
+    n = nrow(rects)
+  }
+  if (is.null(n)) {
+    rects = matrix(rects, 1, 4)
+    n = 1
+  }
+
+  lines = vapply(seq_len(n), function(i) {
+    rects[i, c(
+      1, 2, 1, 4, # left
+      1, 2, 3, 2, # bottom
+      3, 2, 3, 4, # right
+      1, 4, 3, 4  # top
+    )]
+  }, numeric(16))
+
+  t(matrix(lines, ncol = 4, byrow = TRUE))
+}
+
+# bbox0 = rects_to_lines(bbox0)
+
+uni_horozontal = unique(cbind(bbox0[1,],bbox0[3,]))
+uni_vertical = unique(cbind(bbox0[2,], bbox0[4,]))
+
+# pdf_plot(t(bbox0))
+# pdf_plot(t(charbbox), resetplot=FALSE, color='red')
+
+
+
 
 # TODO:
-# 1. Merge cells (bboxes)
-# 2. Delete Empty words cells (charbbox)
+# 1. Identify the cells of the table
+# idea. delete extremely narrow cells and extremely small cells
+width = apply(cbind(abs(bbox0[3,]-bbox0[1,]), abs(bbox0[4,]-bbox0[2,])),1,min)
+area = apply(cbind(abs(bbox0[3,]-bbox0[1,]), abs(bbox0[4,]-bbox0[2,])),1,function(x) x[1]*x[2])
+
+is_wide = width > 5
+#is_big = area > 20
+#bbox1 = bbox0[,as.logical(is_wide+is_big)]
+bbox1 = bbox0[,is_wide]
+# pdf_plot(t(bbox1))
+# pdf_plot(t(charbbox), resetplot=FALSE, color='red')
