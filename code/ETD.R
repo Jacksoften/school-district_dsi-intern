@@ -78,14 +78,14 @@ bbox0 = sapply(rects0, function(node) {
 bbox0 = t(bbox0)
 # cat("bboxes range: ", apply(bboxes, 1, range), "\n")
 
-pdf_plot = function(x, resetplot = TRUE, color = 'black') {
+pdf_plot = function(x, resetplot=TRUE, color='black', show=FALSE) {
   # plot rects and characters in the format of pdfs
   if(!is.matrix(x)) stop("Input is not a matrix")
   if(dim(x)[1] == 0) stop("Input is empty")
   if(resetplot) plot(c(0,1200), c(-850,-50) , type = 'n')
   sleeptime = 1/nrow(x)
   for(i in 1:nrow(x)){
-    Sys.sleep(sleeptime)
+    if(show) Sys.sleep(sleeptime)
     if(dim(x)[1] != 0) rect(x[i,1],-x[i,2],x[i,3],-x[i,4],border=color)
   }
 }
@@ -93,49 +93,83 @@ pdf_plot = function(x, resetplot = TRUE, color = 'black') {
 # pdf_plot(t(bbox0))
 # pdf_plot(t(charbbox), resetplot=FALSE, color='red')
 
-rects_to_lines = function(rects) {
-  n = nrow(rects)
-  if(n == 4) {
-    rects = t(rects)
-    n = nrow(rects)
-  }
-  if (is.null(n)) {
-    rects = matrix(rects, 1, 4)
-    n = 1
-  }
 
-  lines = vapply(seq_len(n), function(i) {
-    rects[i, c(
-      1, 2, 1, 4, # left
-      1, 2, 3, 2, # bottom
-      3, 2, 3, 4, # right
-      1, 4, 3, 4  # top
-    )]
-  }, numeric(16))
+# rects to lines
+lines0 = matrix(apply(bbox0, 1, function(rects) {
+			      rects[c(1,2,1,4,
+				      1,2,3,2,
+				      3,2,3,4,
+				      1,4,3,4)]
+    }), ncol=4, byrow=TRUE)
+hz0 = matrix(apply(bbox0, 1, function(rects) {
+			      rects[c(1,2,3,2,
+				      1,4,3,4)]
+    }), ncol=4, byrow=TRUE)
 
-  t(matrix(lines, ncol = 4, byrow = TRUE))
-}
+vt0 = matrix(apply(bbox0, 1, function(rects) {
+			      rects[c(1,2,1,4,
+				      3,2,3,4)]
+    }), ncol=4, byrow=TRUE)
 
-# bbox0 = rects_to_lines(bbox0)
+uni_horozontal = unique(cbind(bbox0[,1],bbox0[,3]))
+uni_vertical = unique(cbind(bbox0[,2], bbox0[,4]))
 
-uni_horozontal = unique(cbind(bbox0[1,],bbox0[3,]))
-uni_vertical = unique(cbind(bbox0[2,], bbox0[4,]))
+pdf_plot(bbox0)
+pdf_plot(charbbox, resetplot=FALSE, color='red')
 
-# pdf_plot(t(bbox0))
-# pdf_plot(t(charbbox), resetplot=FALSE, color='red')
 
+# lines to cells
+
+# subset according to positions
+group0 = lapply(unique(hz0[,2]),function(x) {
+		       result = hz0[hz0[,2] == x,]
+		       result[order(result[,1]),]
+  })
+# merge overlapping lines
 
 
 
 # TODO:
+merge = function(lines) {
+  count = 1
+  other = lines[1,2]
+  n = nrow(lines)
+  new = NULL
+  begin = lines[1,1]
+  end = lines[1,3]
+  while(count < n){
+    if(end >= lines[count+1,1]){  end <- lines[count+1,3]}
+    else{
+      new <- c(new, begin, other, end, other)
+      begin = lines[count+1,1]
+      end = lines[count+1,3]
+    }
+    count <- count + 1
+  }
+  new <- c(new, begin, other, end, other)
+  matrix(new, ncol = 4, byrow = TRUE)
+}
+merge0 = do.call(rbind, lapply(group0, merge))
+
+
 # 1. Identify the cells of the table
-# idea. delete extremely narrow cells and extremely small cells
-width = apply(cbind(abs(bbox0[3,]-bbox0[1,]), abs(bbox0[4,]-bbox0[2,])),1,min)
-area = apply(cbind(abs(bbox0[3,]-bbox0[1,]), abs(bbox0[4,]-bbox0[2,])),1,function(x) x[1]*x[2])
+# 2. Edges of the large cell is constructed by small cells, we need to
+#    merge those small cells back to one large cell. 
+# Idea: delete extremely narrow cells and extremely small cells
+width = apply(cbind(abs(bbox0[,3]-bbox0[,1]), abs(bbox0[,4]-bbox0[,2])),1,min)
+area = apply(cbind(abs(bbox0[,3]-bbox0[,1]), abs(bbox0[,4]-bbox0[,2])),1,function(x) x[1]*x[2])
 
 is_wide = width > 5
-#is_big = area > 20
-#bbox1 = bbox0[,as.logical(is_wide+is_big)]
-bbox1 = bbox0[,is_wide]
+is_big = area > 20
+is_cell = is_wide & is_big
+# bbox1 = bbox0[,as.logical(is_wide+is_big)]
+# bbox1 = bbox0[,is_wide]
 # pdf_plot(t(bbox1))
 # pdf_plot(t(charbbox), resetplot=FALSE, color='red')
+
+# IDEA: scan from top to bottom, from left to right according to each two parallel lines.`
+
+
+# NOTE:
+# findInterval() might be useful
+# Idea: try to using snipping tool method. From left top corner to right bottom corner
