@@ -126,10 +126,6 @@ group0 = lapply(unique(hz0[,2]),function(x) {
 		       result[order(result[,1]),]
   })
 # merge overlapping lines
-
-
-
-# TODO:
 merge = function(lines) {
   count = 1
   other = lines[1,2]

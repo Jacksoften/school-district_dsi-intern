@@ -24,6 +24,9 @@ git clone https://github.com/dsidavis/ReadPDF.git \
 # XML
 rects are showing as [x0, y0, x1, y1]
 
+# NOTE
+rects are not shown as a entity. A big rectangle is contributed by many small rectangles.  
+
 # TODO
 1. ploting the extracted coordinates (well done)
 2. extracting text by subsection names (may be able to do this by locations of characters.
