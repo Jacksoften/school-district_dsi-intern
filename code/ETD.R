@@ -125,27 +125,58 @@ group0 = lapply(unique(hz0[,2]),function(x) {
 		       result = hz0[hz0[,2] == x,]
 		       result[order(result[,1]),]
   })
+group1 = lapply(unique(vt0[,1]),function(x) {
+           result = vt0[vt0[,1] == x,,drop=FALSE]
+           result[order(result[,2]),]
+  })
 # merge overlapping lines
 merge = function(lines) {
   count = 1
-  other = lines[1,2]
+  if(is.null(nrow(lines))) return(lines)
+
   n = nrow(lines)
   new = NULL
-  begin = lines[1,1]
-  end = lines[1,3]
-  while(count < n){
-    if(end >= lines[count+1,1]){  end <- lines[count+1,3]}
-    else{
-      new <- c(new, begin, other, end, other)
-      begin = lines[count+1,1]
-      end = lines[count+1,3]
+  
+  if(lines[1,2] == lines[2,2])
+  {
+    other = lines[1,2]
+    begin = lines[1,1]
+    end = lines[1,3]
+    while(count < n){
+      if(end >= lines[count+1,1]){  end <- lines[count+1,3]}
+      else{
+        new <- c(new, begin, other, end, other)
+        begin = lines[count+1,1]
+        end = lines[count+1,3]
+      }
+      count <- count + 1
     }
-    count <- count + 1
+    new <- c(new, begin, other, end, other)
   }
-  new <- c(new, begin, other, end, other)
+  else if(lines[1,1] == lines[2,1])
+  {
+    other = lines[1,1]
+    begin = lines[1,2]
+    end = lines[1,4]
+    while(count < n){
+      if(end >= lines[count+1,2]){  end <- lines[count+1,4]}
+      else{
+        new <- c(new, other, begin, other, end)
+        begin = lines[count+1,2]
+        end = lines[count+1,4]
+      }
+      count <- count + 1
+    }
+    new <- c(new, begin, other, end, other)
+  }
   matrix(new, ncol = 4, byrow = TRUE)
 }
+
 merge0 = do.call(rbind, lapply(group0, merge))
+merge1 = do.call(rbind, lapply(group1, merge))
+
+pdf_plot(merge0, resetplot = TRUE, color = "green")
+pdf_plot(merge1, resetplot = FALSE, color = "red")
 
 
 # 1. Identify the cells of the table
@@ -155,9 +186,16 @@ merge0 = do.call(rbind, lapply(group0, merge))
 width = apply(cbind(abs(bbox0[,3]-bbox0[,1]), abs(bbox0[,4]-bbox0[,2])),1,min)
 area = apply(cbind(abs(bbox0[,3]-bbox0[,1]), abs(bbox0[,4]-bbox0[,2])),1,function(x) x[1]*x[2])
 
-is_wide = width > 5
-is_big = area > 20
-is_cell = is_wide & is_big
+mergehz = merge0[abs(merge0[,1]-merge0[,3])>20,]
+mergevt = merge1[abs(merge1[,2]-merge1[,4])>20,]
+
+pdf_plot(mergehz, resetplot = TRUE)
+pdf_plot(mergevt, resetplot = FALSE)
+pdf_plot(charbbox, resetplot=FALSE, color='red')
+
+# is_wide = width > 5
+# is_big = area > 20
+# is_cell = is_wide & is_big
 # bbox1 = bbox0[,as.logical(is_wide+is_big)]
 # bbox1 = bbox0[,is_wide]
 # pdf_plot(t(bbox1))
