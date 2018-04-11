@@ -127,17 +127,21 @@ group0 = lapply(unique(hz0[,2]),function(x) {
   })
 group1 = lapply(unique(vt0[,1]),function(x) {
            result = vt0[vt0[,1] == x,,drop=FALSE]
-           result[order(result[,2]),]
+           is_swap = result[,2] > result[,4]
+           result[is_swap, c(2,4)] = result[is_swap, c(4,2)]
+           result = result[order(result[,2]),,drop=FALSE]
+           if(nrow(result) > 1) unique(result)
+           result
   })
 # merge overlapping lines
-merge = function(lines) {
+merge = function(lines, direction) {
   count = 1
-  if(is.null(nrow(lines))) return(lines)
+  if(is.null(nrow(lines)) | nrow(lines) == 1) return(lines)
 
   n = nrow(lines)
   new = NULL
   
-  if(lines[1,2] == lines[2,2])
+  if(direction == 'hz')
   {
     other = lines[1,2]
     begin = lines[1,1]
@@ -153,13 +157,15 @@ merge = function(lines) {
     }
     new <- c(new, begin, other, end, other)
   }
-  else if(lines[1,1] == lines[2,1])
+  else if(direction == 'vt')
   {
     other = lines[1,1]
     begin = lines[1,2]
     end = lines[1,4]
     while(count < n){
-      if(end >= lines[count+1,2]){  end <- lines[count+1,4]}
+      if(end >= lines[count+1,2]){
+        end <- lines[count+1,4]
+      }
       else{
         new <- c(new, other, begin, other, end)
         begin = lines[count+1,2]
@@ -172,8 +178,8 @@ merge = function(lines) {
   matrix(new, ncol = 4, byrow = TRUE)
 }
 
-merge0 = do.call(rbind, lapply(group0, merge))
-merge1 = do.call(rbind, lapply(group1, merge))
+merge0 = do.call(rbind, lapply(group0, function(x) merge(x, 'hz')))
+merge1 = do.call(rbind, lapply(group1, function(x) merge(x, 'vt')))
 
 pdf_plot(merge0, resetplot = TRUE, color = "green")
 pdf_plot(merge1, resetplot = FALSE, color = "red")
@@ -190,8 +196,14 @@ mergehz = merge0[abs(merge0[,1]-merge0[,3])>20,]
 mergevt = merge1[abs(merge1[,2]-merge1[,4])>20,]
 
 pdf_plot(mergehz, resetplot = TRUE)
-pdf_plot(mergevt, resetplot = FALSE)
+pdf_plot(mergevt, resetplot = FALSE, show=TRUE)
 pdf_plot(charbbox, resetplot=FALSE, color='red')
+
+lines_to_rects = function(lines){
+  # convert lines to cells
+  
+}
+
 
 # is_wide = width > 5
 # is_big = area > 20
