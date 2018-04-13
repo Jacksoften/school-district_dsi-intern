@@ -127,11 +127,11 @@ group0 = lapply(unique(hz0[,2]),function(x) {
   })
 group1 = lapply(unique(vt0[,1]),function(x) {
            result = vt0[vt0[,1] == x,,drop=FALSE]
-           is_swap = result[,2] > result[,4]
-           result[is_swap, c(2,4)] = result[is_swap, c(4,2)]
+           #is_swap = result[,2] > result[,4]
+           #result[is_swap, c(2,4)] = result[is_swap, c(4,2)]
            result = result[order(result[,2]),,drop=FALSE]
-           if(nrow(result) > 1) unique(result)
-           result
+           #if(nrow(result) > 1) unique(result)
+           #result
   })
 # merge overlapping lines
 merge = function(lines, direction) {
@@ -160,20 +160,20 @@ merge = function(lines, direction) {
   else if(direction == 'vt')
   {
     other = lines[1,1]
-    begin = lines[1,2]
-    end = lines[1,4]
+    begin = lines[1,4]
+    end = lines[1,2]
     while(count < n){
-      if(end >= lines[count+1,2]){
-        end <- lines[count+1,4]
+      if(end >= lines[count+1,4]){
+        end <- lines[count+1,2]
       }
       else{
-        new <- c(new, other, begin, other, end)
-        begin = lines[count+1,2]
-        end = lines[count+1,4]
+        new <- c(new, other, end, other, begin)
+        begin = lines[count+1,4]
+        end = lines[count+1,2]
       }
       count <- count + 1
     }
-    new <- c(new, begin, other, end, other)
+    new <- c(new, other, end, other, begin)
   }
   matrix(new, ncol = 4, byrow = TRUE)
 }
@@ -189,11 +189,14 @@ pdf_plot(merge1, resetplot = FALSE, color = "red")
 # 2. Edges of the large cell is constructed by small cells, we need to
 #    merge those small cells back to one large cell. 
 # Idea: delete extremely narrow cells and extremely small cells
-width = apply(cbind(abs(bbox0[,3]-bbox0[,1]), abs(bbox0[,4]-bbox0[,2])),1,min)
-area = apply(cbind(abs(bbox0[,3]-bbox0[,1]), abs(bbox0[,4]-bbox0[,2])),1,function(x) x[1]*x[2])
+
+# width = apply(cbind(abs(bbox0[,3]-bbox0[,1]), abs(bbox0[,4]-bbox0[,2])),1,min)
+# area = apply(cbind(abs(bbox0[,3]-bbox0[,1]), abs(bbox0[,4]-bbox0[,2])),1,function(x) x[1]*x[2])
 
 mergehz = merge0[abs(merge0[,1]-merge0[,3])>20,]
+
 mergevt = merge1[abs(merge1[,2]-merge1[,4])>20,]
+
 
 pdf_plot(mergehz, resetplot = TRUE)
 pdf_plot(mergevt, resetplot = FALSE, show=TRUE)
