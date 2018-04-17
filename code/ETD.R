@@ -53,7 +53,7 @@ rects = getNodeSet(allPages[[1]], "rect")
 is_unfilled = sapply(rects, xmlAttrs)[3,] == '0,0,0'
 rects0 = rects[is_unfilled]
 attrs = sapply(texts, xmlAttrs)
-charbbox = apply(attrs, 2, function(x){
+charbbox1 = apply(attrs, 2, function(x){
 			 vc = as.numeric(x)
 			 # delete extreme small bbox
 			 if(vc[3] <= 5) {
@@ -64,10 +64,13 @@ charbbox = apply(attrs, 2, function(x){
 			 names(result) = c('x0', 'y0', 'x1', 'y1')
 			 return(result)
   })
-charbbox = t(charbbox[, charbbox[1,] != 0])
+selected = charbbox1[1,] != 0
+charbbox = t(charbbox1[, selected])
+texts0 = texts[selected]
 
 # cat("charbbox range: ", apply(charbbox, 1, range), "\n")
 values = sapply(texts, xmlValue)
+values0 = values[selected]
 bbox0 = sapply(rects0, function(node) {
 			bbox = xmlAttrs(node)[1]
 			bbox = as.numeric(strsplit(bbox, ',')[[1]])
@@ -194,13 +197,35 @@ pdf_plot(merge1, resetplot = FALSE, color = "red")
 # area = apply(cbind(abs(bbox0[,3]-bbox0[,1]), abs(bbox0[,4]-bbox0[,2])),1,function(x) x[1]*x[2])
 
 mergehz = merge0[abs(merge0[,1]-merge0[,3])>20,]
-
 mergevt = merge1[abs(merge1[,2]-merge1[,4])>20,]
-
 
 pdf_plot(mergehz, resetplot = TRUE)
 pdf_plot(mergevt, resetplot = FALSE, show=TRUE)
 pdf_plot(charbbox, resetplot=FALSE, color='red')
+
+# locating my chars in cells
+hzloc = findInterval(charbbox[,2], mergehz[,2])
+vtloc = findInterval(charbbox[,1], mergevt[,1])
+hz_vt = cbind(hzloc, vtloc)
+
+uni_hz_vt = unique(hz_vt)
+uni_hz_vt0 = cbind(uni_hz_vt[order(uni_hz_vt[,1]),], seq_along(uni_hz_vt[,1]))
+
+locs = apply(hz_vt, 1, 
+  function(x){
+    eq = apply(uni_hz_vt0[,1:2], 1, function(i) all(i==x))
+    uni_hz_vt0[eq,3]
+})
+
+
+
+# incomplete
+# find where do chars belong to and return their values and locations
+# in other words, group words by location.
+df = data.frame(cbind(charbbox, hz_vt, values0, locs))
+View(df)
+
+df$values0[df$locs == df$locs[grep("GOAL",df$values0)]]
 
 lines_to_rects = function(lines){
   # convert lines to cells
@@ -221,4 +246,16 @@ lines_to_rects = function(lines){
 
 # NOTE:
 # findInterval() might be useful
+# Examples
+runFindInterval <- function() 
+{
+  x <- 2:18
+  cat("x", x)
+  v <- c(5, 10, 15) # create two bins [5,10) and [10,15)
+  cat("\nv",v)
+  result <- cbind(x, findInterval(x, v))
+  print(result)
+}
+runFindInterval()
+  
 # Idea: try to using snipping tool method. From left top corner to right bottom corner
