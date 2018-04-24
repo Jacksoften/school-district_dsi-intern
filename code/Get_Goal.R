@@ -112,7 +112,11 @@ clean_structure <- function(rects){
   merge0 = do.call(rbind, lapply(group0, function(x) merge(x, 'hz')))
   merge1 = do.call(rbind, lapply(group1, function(x) merge(x, 'vt')))
   
-  list("hz" = merge0, "vt" = merge1)
+  # getting rid of extreme small ones
+  mergehz = merge0[abs(merge0[,1]-merge0[,3])>20,]
+  mergevt = merge1[abs(merge1[,2]-merge1[,4])>20,]
+  
+  list("hz" = mergehz, "vt" = mergevt)
 }
 
 merge = function(lines, direction) {
@@ -163,9 +167,8 @@ get_goal <- function(list){
   # Args: list "rect", "charbbox", "text", "value"
   # Return: texts belongs to Goal section
   
-  print(list)
-  hzloc = findInterval(list$charbbox[,2], list$rect$hz[,2])
-  vtloc = findInterval(list$charbbox[,1], list$rect$vt[,1])
+  hzloc = findInterval(list$charbbox[,2], sort(list$rect$hz[,2]))
+  vtloc = findInterval(list$charbbox[,1], sort(list$rect$vt[,1]))
   hz_vt = cbind(hzloc, vtloc)
   
   uni_hz_vt = unique(hz_vt)
@@ -179,9 +182,11 @@ get_goal <- function(list){
                })
   
   
-  df = data.frame(cbind(list$charbbox, hz_vt, list$values, locs))
-
-  df$values0[df$locs == df$locs[grep("GOAL",df$values0)]]
+  df = as.data.frame(cbind(list$charbbox, hz_vt, list$value, locs),
+                     stringsAsFactors=FALSE)
+  
+  names(df) = c("x0", "y0", "x1", "y1", "hzloc", "vtloc", "value", "locs" )
   
   
+  df$value[df$locs == df$locs[grep("GOAL",df$value)]]
 } 
