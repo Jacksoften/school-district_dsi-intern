@@ -84,13 +84,13 @@ clean_structure <- function(rects){
                    names(bbox) = c('x0', 'y0', 'x1', 'y1')
                    return(bbox)
                    })
-  hz0 = matrix(apply(bbox0, 1, 
+  hz0 = matrix(apply(t(bbox0), 1, 
                      function(rects) {
                        rects[c(1,2,3,2,
                                1,4,3,4)]
                      }), ncol=4, byrow=TRUE)
               
-  vt0 = matrix(apply(bbox0, 1, 
+  vt0 = matrix(apply(t(bbox0), 1, 
                      function(rects) {
                        rects[c(1,2,1,4,
                                3,2,3,4)]
@@ -117,6 +117,10 @@ clean_structure <- function(rects){
   mergevt = merge1[abs(merge1[,2]-merge1[,4])>20,]
   
   list("hz" = mergehz, "vt" = mergevt)
+  
+  
+  # TODO
+  # Does not get correct lines, something wrong when wrapping it into functions.
 }
 
 merge = function(lines, direction) {
@@ -163,7 +167,7 @@ merge = function(lines, direction) {
   matrix(new, ncol = 4, byrow = TRUE)
 }
 
-get_goal <- function(list){
+get_info <- function(list){
   # Args: list "rect", "charbbox", "text", "value"
   # Return: texts belongs to Goal section
   
@@ -186,7 +190,25 @@ get_goal <- function(list){
                      stringsAsFactors=FALSE)
   
   names(df) = c("x0", "y0", "x1", "y1", "hzloc", "vtloc", "value", "locs" )
-  
+  df
+  # TODO: 
+  # ERROR occurs in this function
+} 
+
+get_goal <- function(df) {
   
   df$value[df$locs == df$locs[grep("GOAL",df$value)]]
-} 
+  
+}
+
+pdf_plot = function(x, resetplot=TRUE, color='black', show=FALSE) {
+  # plot rects and characters in the format of pdfs
+  if(!is.matrix(x)) stop("Input is not a matrix")
+  if(dim(x)[1] == 0) stop("Input is empty")
+  if(resetplot) plot(c(0,1200), c(-850,-50) , type = 'n')
+  sleeptime = 1/nrow(x)
+  for(i in 1:nrow(x)){
+    if(show) Sys.sleep(sleeptime)
+    if(dim(x)[1] != 0) rect(x[i,1],-x[i,2],x[i,3],-x[i,4],border=color)
+  }
+}
